@@ -18,7 +18,7 @@ def checall(i,liste,exp,toApprox):
         listA = copy.deepcopy(liste)
         listB = copy.deepcopy(liste)
         checall(i-1,listA,exp,toApprox)
-        listB[i] = 0b1
+        listB[i] = 1
         checall(i-1,listB,exp,toApprox)
     else:
         if( abs(calc(liste,exp,len)-toApprox) < err ):
@@ -30,7 +30,7 @@ len = 9
 liste = []
 exp = 2**(-1)
 for i in range(len):
-    liste.append(0b0)
+    liste.append(0)
 toApprox = 0.3
 checall(len-1,liste,exp,toApprox)
 
