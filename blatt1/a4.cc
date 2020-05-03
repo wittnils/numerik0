@@ -1,8 +1,11 @@
 #include <iostream>
 #include <iomanip>
-#include <cmath>
+#include <math.h>
+#include <limits>
 
 int main(){
-    std::cout << "helloword" << std::endl;
-    std::cout << "gittest" << std::endl; 
+    double x; 
+    std::cout << "Eingabe: "; 
+    std::cin >> x; 
+    std::cout << std::setprecision(std::numeric_limits<double>::digits10 + 1) << std::sqrt(3) << std::endl; 
 }
