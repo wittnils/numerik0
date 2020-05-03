@@ -1,5 +1,5 @@
 # Skript zur Berechnung von so Numerik-Sachen
-import random 
+import random
 import copy
 err = 2**32
 list2 = [0,0,0,0,0,0,0,0,0,0]
@@ -14,10 +14,10 @@ def calc(list2,list,exp):
             list2[i] = 1
         i = i+1
     i = 0
-    while i<9: 
+    while i<9:
         sum += list2[i]*2**(-i)*2**(-1)
         i = i+1
-    return sum*exp 
+    return sum*exp
 
 
 def checall(i,list,exp,toApprox):
@@ -35,7 +35,7 @@ def checall(i,list,exp,toApprox):
 exp = 2**(-1)
 list2 = [0,0,0,0,0,0,0,0,0,0]
 list = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
-toApprox = 0.3 
+toApprox = 0.3
 checall(9,list,exp,toApprox)
 print(err)
 print(smallest)
