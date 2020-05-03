@@ -1,43 +1,41 @@
 # Skript zur Berechnung von so Numerik-Sachen
 import random
 import copy
-err = 2**32
-list2 = [0,0,0,0,0,0,0,0,0,0]
 
-def calc(list2,list,exp):
-    i = 0
+
+def calc(liste,exp,len):
+    i = 2
     sum = 1./2
-    while i<9:
-        if(list[i] == -1):
-            list2[i] = 0
-        else:
-            list2[i] = 1
-        i = i+1
-    i = 0
-    while i<9:
-        sum += list2[i]*2**(-i)*2**(-1)
+    while i<len+2:
+        sum += liste[i-2]*2**(-i)
+        print(liste[i-2]*2**(-i))
         i = i+1
     return sum*exp
 
-
-def checall(i,list,exp,toApprox):
+err = 2**32
+def checall(i,liste,exp,toApprox):
     global err, smallest
     if i!=-1:
-        checall(i-1,list,exp,toApprox)
-        list[i] = list[i]*(-1)
-        checall(i-1,list,exp,toApprox)
+        checall(i-1,liste,exp,toApprox)
+        liste[i] = 1
+        checall(i-1,liste,exp,toApprox)
     else:
-        if( abs(calc(list2,list,exp)-toApprox) < err ):
-            err = abs(calc(list2,list,exp) - toApprox)
-            smallest = copy.deepcopy(list)
-
+        print(liste)
+        if( abs(calc(liste,exp,len)-toApprox) < err ):
+            print(liste)
+            err = abs(calc(liste,exp,len) - toApprox)
+            smallest = copy.deepcopy(liste)
+    
 # main
+len = 2 
+liste = []
 exp = 2**(-1)
-list2 = [0,0,0,0,0,0,0,0,0,0]
-list = [-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]
+for i in range(len):
+    liste.append(0)
+testl = [1,0]
 toApprox = 0.3
-checall(9,list,exp,toApprox)
+checall(1,liste,exp,toApprox)
 print(err)
 print(smallest)
-print(calc(list2,smallest,exp))
-print(round(calc(list2,smallest,exp),4))
+print(calc(smallest,exp,len))
+print(calc(testl,exp,len))
