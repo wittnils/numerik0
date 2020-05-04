@@ -36,5 +36,4 @@ checall(len-1,liste,exp,toApprox)
 
 print(err)
 print(smallest)
-smallest[9] = 1
 print(calc(smallest,exp,len))

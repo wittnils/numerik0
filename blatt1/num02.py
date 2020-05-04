@@ -15,6 +15,6 @@ def nextVal(curValue,y):
 # main 
 y = -0.755
 curValue = 2.46
-for i in range(11):
+for i in range(12):
     print(curValue)
     curValue = nextVal(curValue,y)
