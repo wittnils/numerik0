@@ -10,7 +10,7 @@ h bez. wir i.A. als Schrittweite (auch Inkrement oder Feinheit genannt).
 import math 
 import matplotlib.pyplot as plt
 
-h = input("Schrittweite: ")
+h = float(input("Schrittweite: "))
 # Berechnen des n+1-ten Schrittes 
 def nextVal(y_n, h):
     return y_n+h*y_n 
