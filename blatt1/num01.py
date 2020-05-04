@@ -26,7 +26,7 @@ def checall(i,liste,exp,toApprox):
             smallest = copy.deepcopy(liste)
     
 # main
-len = 9
+len = 10
 liste = []
 exp = 2**(-1)
 for i in range(len):
@@ -36,4 +36,5 @@ checall(len-1,liste,exp,toApprox)
 
 print(err)
 print(smallest)
+smallest[9] = 1
 print(calc(smallest,exp,len))
