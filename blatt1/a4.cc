@@ -23,5 +23,5 @@ int main(){
         std::cout << "float 1+x: "<< std::setprecision(std::numeric_limits<float>::digits10) << sum_y << std::endl;  
         ++i; 
     } 
-    std::cout << "Kleinste Zahl, die bei Addition zu keiner Nulladition führt: \n" << "double: " << x*10 << "\nfloat: " << y*10 << std::endl; 
+    std::cout << "Kleinste Zahl, die bei Addition zu keiner Nulladition führt: \n" << "double: " << x << "\nfloat: " << y << std::endl; 
 }
