@@ -140,10 +140,11 @@ def nullen(u,n):
 print("Das ist ein Programm zur Diskretisierung der Poisson-Gleichung durch ein Mehrgitterverfahren")
 x = 0
 y = 0
-n = input("Anzahl der Intervalle: ")
+n = int(input("Anzahl der Intervalle: "))
 print("Es wird nun ein Gleichungssystem mit n*n Unbekannten errechnet")
 u = []
 helfe = []
+i = 0
 for i in range(n+i):
     u.append(i)
     helfe.append(i)
