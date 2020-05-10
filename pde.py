@@ -46,13 +46,19 @@ def MG(u,r,n,h):
     gs(u,r,n,h)
     gs(u,r,n,h)
     #print "Nach GS:", maxdef(u,r,n,h)
-    rc = range(0,nc+1)
+    rc = []
+    hilf = [] 
+    for i in range(0,nc+1):
+        rc.append(i)
+        hilf.append(i)
     for ic in range(0,nc+1):
-        rc[ic] = range(0,nc+1)
+        rc[ic] = hilf
     # uc (Fehler) mit 0 initialiseren
-    uc = range(0,nc+1)
+    uc = []
+    for i in range(0,nc+1):
+        uc.append(i)
     for ic in range(0,nc+1):
-        uc[ic]=range(nc+1)
+        uc[ic]=hilf
         for jc in range(0,nc+1):
             uc[ic][jc]= 0.
     injektion(u,r,nc,h,rc)
@@ -131,21 +137,29 @@ def nullen(u,n):
             u[m][l]=0.
                 
 # MAIN
-print "Das ist ein Programm zur Diskretisierung der Poisson-Gleichung durch ein Mehrgitterverfahren"
+print("Das ist ein Programm zur Diskretisierung der Poisson-Gleichung durch ein Mehrgitterverfahren")
 x = 0
 y = 0
 n = input("Anzahl der Intervalle: ")
-print "Es wird nun ein Gleichungssystem mit", n**2, "Unbekannten errechnet"
-u = range(n+1)
+print("Es wird nun ein Gleichungssystem mit n*n Unbekannten errechnet")
+u = []
+helfe = []
+for i in range(n+i):
+    u.append(i)
+    helfe.append(i)
 # Stellt eine Zweidimensionale Liste von u her
 k = 0
 for k in range(n+1):
-    u[k] = range(n+1)
+    u[k] = helfe
 # Stellt r als zweidimensional her
 k = 0
-r = range(n+1)
+r = []
+helfeR = []
+for i in range(n+i):
+    r.append(i)
+    helfeR.append(i)
 for k in range(n+1):
-    r[k] = range(n+1)
+    r[k] = helfeR
 t = 256
 h = 1./n
 # Startwerte fuer die inneren Werte von u werden festgelegt
@@ -156,7 +170,8 @@ rand(u,n,h)
 rbef(r,h,n)
 # Sucht den groessten Defekt, bevor das GSV ueberhaupt angefangen hat 
 md_0 = maxdef(u,r,n,h)
-print "startdefekt:",md_0
+print("startdefekt:")
+print(md_0)
 t1 = time.time()
 # Doppelte Abbruchbedingung: Nach i Schritten oder, sobald der Defekt
 # einen Wert unterschritten hat
@@ -164,13 +179,15 @@ i = 0
 while i<t:
     MG(u,r,n,h)
     md = maxdef(u,r,n,h)
-    print md
+    print(md)
     if md < md_0*10**(-11):
-        print "Iterationen :", i
+        print("Iterationen :") 
+        print(i)
         break
     i += 1
 t2 = time.time()
-print "Zeit:",t2-t1
+print("Zeit:")
+print(t2-t1)
 time.sleep(5)
 o_d=open("erg.txt","w")
 printl(u,h)
