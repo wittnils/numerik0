@@ -25,9 +25,9 @@ def printmat(A,n):
 	for i in range(1,n+1):
 		for j in range(1,n+1):
 			if A[i][j] == 1:
-				print "X",  
+				print("X"),  
 			else:
-				print ".",
+				print ("."),
 		print
 
 def evalmat(A,B,n):
@@ -45,8 +45,8 @@ def newgen(A,B,n):
 				A[i][j] = 1 
 
 # MAIN
-n = input("n = ")
-x = input("Anzahl Generationen = ")
+n = int(input("n = "))
+x = int(input("Anzahl Generationen = ")
 print
 A,B = createmat(n)
 A = clearmat(A,n)
@@ -57,7 +57,7 @@ i = 0
 while i != x:
 	B = evalmat(A,B,n)
 	newgen(A,B,n)
-	print "Generation:", i+1
+	print("Generation:"), i+1
 	time.sleep(0.2)
 	os.system("cls")
 	printmat(A,n)
