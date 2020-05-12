@@ -31,7 +31,7 @@ int main(){
     double b;
     for (int i=0; i<100; i++){
         std::cout<< a<< std::endl;
-        b= chaos(a);
+        b= ftilde(a);
         a=b;
     }
     return 0;
