@@ -3,8 +3,9 @@
 #include<cmath>
 #include<limits>
 #include<math.h>
-#include<thread>
+#include<pthread.h>
 // Skript zur Berechnung von so Funktionenfolgensachen 
+
 // Geometrische Reihe der Form 2^{-i} für i=1,...,n als Intervallgrenze
 long double geo_sum(int n){
     long double sum = 0;
@@ -40,13 +41,12 @@ void calc(int from, int to, long double lowerBound, long double upperBound, long
 }
 
 int main(){
-    int nMax, i;
-    pthread_t threads[2];
+    int i, from, to;;
     long double lowerBound, upperBound;
     long double increment = pow(2,-20);
-    nMax = 50; 
-    //pthread_create(&threads[i], NULL, calc, (0, 25,lowerBound,upperBound,increment)); 
-    calc(0,25,lowerBound,upperBound,increment);
-    calc(25, 50,lowerBound,upperBound,increment);
+
+    from = 0;
+    to = 50;
+    calc(from, to, lowerBound, upperBound, increment);
     return 0; 
 }
