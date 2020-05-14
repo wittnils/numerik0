@@ -1,0 +1,6 @@
+#!/bin/bash
+# visualisierungsskritp
+
+set xrange[0:1]
+set yrange[-1.25:1.25]
+plot 'ffolgen.dat' using 2:1 with lines
