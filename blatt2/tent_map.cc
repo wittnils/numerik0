@@ -1,5 +1,7 @@
 #include<iostream>
 
+//dies ist ein kommentar
+
 double chaos(double x){
     double y;
     if(x >= 0 && x <= 1){
