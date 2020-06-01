@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <cstdlib>
-#include "hdnum.hh"
+#include "hdnum/hdnum.hh"
 
 
 // Funktion zum Aufstellen der Matrix
