@@ -42,7 +42,7 @@ NumberType frobeniusNorm(const hdnum::DenseMatrix<NumberType> &A)
   for ( int i=0; i<A.rowsize (); ++i){
       for ( int j=0; j<A.colsize (); ++j){
           //Betrag bestimmen
-          result+= abs(B[i][j]);
+          result+= abs(A[i][j]);
           //quadrieren
           pow(result,2);
           }
@@ -65,13 +65,13 @@ NumberType maxEigenwert(const hdnum::DenseMatrix<NumberType> &A)
   // TODO Implementieren Sie hier die Potenzmethode
 
   // Berechnung der EW:
-  hdnum::Vector<NumberType> r_0 // wie r_0 aussieht naja ähm
+  hdnum::Vector<NumberType> r_0; // wie r_0 aussieht naja ähm
 
   //hier sollte man vlt noch überprüfen ob Ar_0 \neq 0 ist
   hdnum::Vector<NumberType> var = r_0;
 
   //schleife 1000 mal durchlaufen, weil wir Grenzwert betr. kA, wie lange das dauern soll^^
-  for(int i=0; i<1000,i++){
+  for(int i=0; i<1000; i++){
     A.mv(var,var); // var = A*var
     var = var/ norm(var); // teile durch euklidische Norm
   }
@@ -80,7 +80,7 @@ NumberType maxEigenwert(const hdnum::DenseMatrix<NumberType> &A)
   hdnum::Vector<NumberType> y;
   hdnum::Vector<NumberType> lambda;
   A.mv(y,var); //y=A*var, wobei var nun unser EW ist
-  lambda = (var*y)/(var*var) //Berechnung der euklidischen Skalarprodukte
+  lambda = (var*y)/(var*var); //Berechnung der euklidischen Skalarprodukte
 
   return var; //max EW zurückgeben, da funkt so heißt, vlt könnte man auch ein Tupel zurückgeben mit EV,EW 
 }
