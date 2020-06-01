@@ -6,7 +6,7 @@
 #include<pthread.h>
 // Skript zur Berechnung von so Funktionenfolgensachen 
 
-// Geometrische Reihe der Form 2^{-i} für i=1,...,n als Intervallgrenze
+// Geometrische Reihe der Form 2^{-i} fuer i=1,...,n als Intervallgrenze
 long double geo_sum(int n){
     long double sum = 0;
     if(n != 0){
