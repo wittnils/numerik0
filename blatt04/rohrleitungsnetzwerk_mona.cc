@@ -71,7 +71,7 @@ NumberType maxEigenwert(const hdnum::DenseMatrix<NumberType> &A)
   hdnum::Vector<NumberType> var = r_0;
 
   //schleife 1000 mal durchlaufen, weil wir Grenzwert betr. kA, wie lange das dauern soll^^
-  for(int i=0; i<1000,i++){
+  for(int i=0; i<1000; i++){
     A.mv(var,var); // var = A*var
     var = var/ norm(var); // teile durch euklidische Norm
   }
