@@ -7,7 +7,7 @@
 
 #include <iostream>
 #include <cstdlib>
-#include "hdnum/hdnum.hh"
+#include "hdnum.hh"
 #include<tgmath.h>
 #include<cmath>
 
