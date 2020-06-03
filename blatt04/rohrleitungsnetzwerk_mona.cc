@@ -20,9 +20,34 @@ void flussMatrix( hdnum::DenseMatrix<NumberType> &A )
   int N( A.colsize() );
   if(M!=N)
     HDNUM_ERROR("Matrix muss quadratisch sein!");
+  
+  //wir erstellen die mat B um dann A=B^tB zu erstellen
+  //wir erkennen, dass durch die Erstellung des LGS die Anzahl der Knoten in einer Zeile folgendes beträgt:
+  //schließlich ist M = Kontenanzahl -1
+  int vertikal = sqrt(M+1);
+  int kantenzahl = 2*(vertikal*(vertikal-1));
+  hdnum::DenseMatrix<NumberType> B (kantenzahl,M,0.0);
 
-  // TODO Implementieren Sie hier das Aufstellen der Matrix des
-  // Rohleitungsgleichungssystems
+  //wir beginnen mit dem ersten Teil
+  B[0][0]=1;
+  int j = 0;
+  for (int i =1; i < B.rowsize()/2; i++){
+      B[i][j]= -1;
+      B[i][j+1]= 1;
+      j++;
+  }
+
+  //konstruiere nun den zweiten Teil
+B[B.rowsize()/2][vertikal-1] = 1;
+int k = 0;
+for(int i = B.rowsize()/2 +1; i<B.rowsize(); i++){
+  B[i][k]=-1;
+  B[i][k+vertikal-1]=1; 
+  k++;
+}
+std::cout<< "die Matrix B" << std::endl;
+std::cout << B << std::endl;
+  A.mm(B.transpose(),B);
 }
 
 
@@ -47,7 +72,7 @@ NumberType frobeniusNorm(const hdnum::DenseMatrix<NumberType> &A)
           pow(result,2);
           }
   }
-  sqrt(result);
+  result = sqrt(result);
   return result;
 }
 
@@ -105,6 +130,7 @@ int main(int argc, char ** argv)
   // Pretty-printing einmal setzen für alle Matrizen
   A.scientific(false);
   A.width(15);
+  A.precision(3);
 
   flussMatrix(A);
   if (N<=4)
@@ -122,8 +148,9 @@ int main(int argc, char ** argv)
     }
   }
 
-  // TODO Geben Sie hier alle verfügbaren Matrixnormen von A (bzw. B)
-  // sowie den maximalen Eigenwert aus
+  flussMatrix(A);
+  std::cout << A << std::endl; 
+  std::cout << "Die Frobeniusnorm beträgt: " << frobeniusNorm(A) << std::endl; 
 
   return 0;
 }
