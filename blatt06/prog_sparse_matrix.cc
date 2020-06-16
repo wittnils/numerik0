@@ -1,6 +1,8 @@
 #include <iostream>    // notwendig zur Ausgabe
 #include <vector>
 #include "hdnum.hh"    // hdnum header
+#include <tgmath.h>   //for pow function
+#include <ctime>      //for clock class
 
 namespace hdnum {
 
@@ -78,26 +80,26 @@ namespace hdnum {
 int main ()
 {
   //test for (b)
-  hdnum::SparseMatrix<float> sparse;
+  hdnum::SparseMatrix<float> test_sparse;
   //sparse.AddEntry(1,1,0);
   //should terminate
-  sparse.AddEntry(0,1,2);
-  sparse.AddEntry(0,0,4);
-  sparse.AddEntry(1,0,4);
-  sparse.AddEntry(1,2,3);
-  sparse.AddEntry(2,1,1);
+  test_sparse.AddEntry(0,1,2);
+  test_sparse.AddEntry(0,0,4);
+  test_sparse.AddEntry(1,0,4);
+  test_sparse.AddEntry(1,2,3);
+  test_sparse.AddEntry(2,1,1);
   /*Matrix der Form:
   [4][2][0]
   [4][0][3]
   [0][1][0]
   */
 
-  hdnum::DenseMatrix<float> dense(3,3);
-  dense[0][0]= 4;
-  dense[0][1]=2;
-  dense[1][0]=4;
-  dense[1][2] = 3;
-  dense[2][1]=1;
+  hdnum::DenseMatrix<float> test_dense(3,3);
+  test_dense[0][0]= 4;
+  test_dense[0][1]=2;
+  test_dense[1][0]=4;
+  test_dense[1][2] = 3;
+  test_dense[2][1]=1;
   
   //sparse.AddEntry(5,8,10);
   hdnum::Vector<float> vec(3,1);
@@ -108,8 +110,8 @@ int main ()
   [1]
   */
 
-  hdnum::Vector<float> result_sparse(3,0);
-  hdnum::Vector<float> result_dense(3,0);
+  hdnum::Vector<float> result_test_sparse(3,0);
+  hdnum::Vector<float> result_test_dense(3,0);
 
   //multiply both
   /*
@@ -117,23 +119,79 @@ int main ()
   [4][0][3] * [2]
   [0][1][0]   [1]
   */
-  sparse.mv(result_sparse,vec);
-  dense.mv(result_dense,vec);
+  test_sparse.mv(result_test_sparse,vec);
+  test_dense.mv(result_test_dense,vec);
   
   //outstream
-  std::cout<< "result dense: " << result_dense << std::endl;
-  std::cout<< "result sparse: " << result_sparse << std::endl;
+  std::cout<< "result test_dense: " << result_test_dense << std::endl;
+  std::cout<< "result sparse: " << result_test_sparse << std::endl;
   //passed
 
   //check equal result:
-  if (result_sparse == result_dense){
+  if (result_test_sparse == result_test_dense){
     std::cout << "Operation was successful!" << std::endl;
   }
   else{
     std::cout << "result was not correct" << std::endl;
   }
-  
 
+  //(c) 
+  const int n = 4;
+  const int N = pow(2,n);
+  hdnum::DenseMatrix<float> dense(N,N,0.0);
+  hdnum::SparseMatrix<float> sparse;
+
+  //initialize Matrix
+  /*
+  [2][2][2] [0]..[0]
+  [0][2][2][2] [0]..[0]
+  ....
+  ...............[0][2][2][2]
+  */
+  int j=0;
+  for ( int i=0; i<dense.rowsize (); ++i){
+    int k =0;
+    while (k< 3) {
+      dense[i][j] = 2;
+      sparse.AddEntry(i,j,2);
+      k++;
+    }
+   j++;
+  }
+
+  //vector x:
+  /*
+  [1]
+  ...
+  [1]
+  */
+  hdnum::Vector<float> x(N,1);
+  //and results:
+  hdnum::Vector<float> result_sparse(N,0);
+  hdnum::Vector<float> result_dense(N,0);
+
+  // see the following code in stackoverflow: (falls du auch gucken wolltest :D)
+  // https://stackoverflow.com/questions/3220477/how-to-use-clock-in-c
+  std::clock_t start;
+  double duration;
+
+  start = std::clock();
+
+  //multiply
+  dense.mv(result_dense,x);
+
+  duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+
+  std::cout<<"duration of dense: "<< duration <<'\n';
+
+  start = std::clock();
+
+  //multiply
+  sparse.mv(result_sparse,x);
+
+  duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+
+  std::cout<<"duration of sparse: "<< duration <<'\n';
   
   //plotten nils mach mal
 }
