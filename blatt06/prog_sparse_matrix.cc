@@ -16,19 +16,26 @@ namespace hdnum {
   public:
 
     void AddEntry (int i, int j, REAL value) {
-      //Stelle ist schon vorhanden?
-      for (std::size_t k = 0; k<entries.size(); k++){
-            if (i == entries[k].i && j==entries[k].j){
-               entries[k].value = value;
-               return;
-            }  
+      if (value == 0){
+        throw std::invalid_argument("received value 0");
       }
-      //passe größe von entries an
-      entries.resize(entries.size()+ 1);
-      //füge wert an ensprechender zeile und spalte an
-      entries[entries.size()-1].i=i;
-      entries[entries.size()-1].j=j;
-      entries[entries.size()-1].value = value;
+      else{
+        //Stelle ist schon vorhanden?
+        for (std::size_t k = 0; k<entries.size(); k++){
+              if (i == entries[k].i && j==entries[k].j){
+                entries[k].value = value;
+                return;
+              }  
+        }
+        //nun ist Stelle nicht vorhanden und wir können einfügen
+        //passe größe von entries an
+        entries.resize(entries.size()+ 1);
+        //füge wert in ensprechender zeile und spalte 
+        entries[entries.size()-1].i=i;
+        entries[entries.size()-1].j=j;
+        entries[entries.size()-1].value = value;
+      }
+      
 
     }
 
@@ -45,13 +52,14 @@ namespace hdnum {
         //std::cout<< entries[l].value<< std::endl;
         std::cout<< a[entries[l].i]<< std::endl;
         std::cout<< "ende"<< std::endl;
+        //wird aufgerufen, falls Zeile noch nicht verarbeitet
         if (a[entries[l].i]==false){
           y[entries[l].i] = entries[l].value * x[entries[l].j];
           //std::cout<< y[entries[l].i]<< std::endl;
           //durchsuche ob andere Einträge ungleich 0 in zeile ex.
           for (std::size_t k = l+1; k<entries.size(); k++){
             if (entries[l].i == entries[k].i){
-              std::cout << "hi"<< std::endl;
+              //std::cout << "hi"<< std::endl;
               //std::cout<< a[entries[l].i]<< std::endl;
                y[entries[l].i] += entries[k].value*x[entries[k].j];
                a[entries[l].i]= true;
