@@ -3,6 +3,8 @@
 #include "hdnum.hh"    // hdnum header
 #include <tgmath.h>   //for pow function
 #include <ctime>      //for clock class
+#include <chrono>
+#include <algorithm>
 
 namespace hdnum {
 
@@ -136,7 +138,7 @@ int main ()
   }
 
   //(c) 
-  const int n = 4;
+  const int n = 10;
   const int N = pow(2,n);
   hdnum::DenseMatrix<float> dense(N,N,0.0);
   hdnum::SparseMatrix<float> sparse;
@@ -176,22 +178,35 @@ int main ()
   double duration;
 
   start = std::clock();
-
   //multiply
   dense.mv(result_dense,x);
-
   duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-
-  std::cout<<"duration of dense: "<< duration <<'\n';
+  std::cout<<"duration of dense (in seconds): "<< duration <<'\n';
 
   start = std::clock();
-
   //multiply
   sparse.mv(result_sparse,x);
-
   duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
+  std::cout<<"duration of sparse (in seconds): "<< duration <<'\n';
 
-  std::cout<<"duration of sparse: "<< duration <<'\n';
+  ////////////////////////////////////////////////////////////////////////
+  //chrono version
+  // https://stackoverflow.com/questions/25836511/how-to-use-chrono-to-determine-runtime 
+  //////////////////////////////////////////////////////////////////////////
+
+  auto begin_2 = std::chrono::high_resolution_clock::now();
+  //multiply
+  dense.mv(result_dense,x);
+  auto diff_2 = std::chrono::high_resolution_clock::now() - begin_2;
+  auto t2 = std::chrono::duration_cast<std::chrono::microseconds>(diff_2);
+  std::cout << "duration of dense with chrono (in microseconds): " << t2.count() << std::endl;
+
+  auto begin = std::chrono::high_resolution_clock::now();
+  //multiply
+  sparse.mv(result_sparse,x);
+  auto diff = std::chrono::high_resolution_clock::now() - begin;
+  auto t1 = std::chrono::duration_cast<std::chrono::microseconds>(diff);
+  std::cout << "duration of sparse with chrono(in microseconds): " << t1.count() << std::endl;
   
   //plotten nils mach mal
 }
