@@ -46,20 +46,19 @@ def rueckeinsetzen(A,r,x,n):
 
 # MAIN
 # Input der Koeffizienten
-A = [[1.,1.,1.],[2.,3.,2.],[1.,3.,2.]]
+A = [[2.,2.,-3.],[-1.,-2.,-2.],[4.,1.,-2.]]
 # Input des b-Vektors
-r = [12.,10.,8.]
+r = [-7., 3., -1.]
 x = []
 n = len(r)
 for c in range(n):
-
-    
     x.append(1)
 print("Das GLS hat folgende Form:")
 print(A)
+print("mit den folgenden B-Werten:")
+print(r)
 gauss(A,r,x,n)
 rueckeinsetzen(A,r,x,n)
-print("mit den folgenden B-Werten:", r)
 time.sleep(3)
 print("Die Loesungen sind:", x)
 time.sleep(6)

@@ -120,7 +120,7 @@ int main(int argc, char ** argv)
 {
 
   // Anzahl der Knoten
-  const int N(5);
+  const int N(3);
   std::cout << "Knotenanzahl N: " << N << std::endl;
 
   // Größe der Matrix
