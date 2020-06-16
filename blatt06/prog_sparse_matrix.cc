@@ -48,22 +48,19 @@ namespace hdnum {
         //multipliziere nicht null eintrag der l-ten Zeile an j-ter Stelle mit j-tem Eintrag in vektor
         //(lüge) TODO: die size von y wird intern durch die def vektormult angepasst, wir müssen also nichts mehr überprüfen
         //TODO: man müsste noch die size von x anpassen
-        //std::cout<< entries.size()<< std::endl;
-        //std::cout<< entries[l].value<< std::endl;
-        std::cout<< a[entries[l].i]<< std::endl;
-        std::cout<< "ende"<< std::endl;
+
         //wird aufgerufen, falls Zeile noch nicht verarbeitet
         if (a[entries[l].i]==false){
+
           y[entries[l].i] = entries[l].value * x[entries[l].j];
-          //std::cout<< y[entries[l].i]<< std::endl;
+
           //durchsuche ob andere Einträge ungleich 0 in zeile ex.
           for (std::size_t k = l+1; k<entries.size(); k++){
             if (entries[l].i == entries[k].i){
-              //std::cout << "hi"<< std::endl;
-              //std::cout<< a[entries[l].i]<< std::endl;
+
                y[entries[l].i] += entries[k].value*x[entries[k].j];
                a[entries[l].i]= true;
-              //std::cout <<entries[k].value << std::endl; 
+
             }  
           }
         }
@@ -80,31 +77,63 @@ namespace hdnum {
 
 int main ()
 {
-  //test
+  //test for (b)
   hdnum::SparseMatrix<float> sparse;
-  sparse.AddEntry(0,0,1);
+  //sparse.AddEntry(1,1,0);
+  //should terminate
   sparse.AddEntry(0,1,2);
   sparse.AddEntry(0,0,4);
   sparse.AddEntry(1,0,4);
+  sparse.AddEntry(1,2,3);
+  sparse.AddEntry(2,1,1);
+  /*Matrix der Form:
+  [4][2][0]
+  [4][0][3]
+  [0][1][0]
+  */
 
-  hdnum::DenseMatrix<float> dense(2,2);
+  hdnum::DenseMatrix<float> dense(3,3);
   dense[0][0]= 4;
   dense[0][1]=2;
   dense[1][0]=4;
+  dense[1][2] = 3;
+  dense[2][1]=1;
   
   //sparse.AddEntry(5,8,10);
-  hdnum::Vector<float> vec(2,1);
-  hdnum::Vector<float> result_sparse(2,0);
-  hdnum::Vector<float> reslut_dense(2,0);
+  hdnum::Vector<float> vec(3,1);
+  vec[1] = 2;
+  /*vec der Form:
+  [1]
+  [2]
+  [1]
+  */
+
+  hdnum::Vector<float> result_sparse(3,0);
+  hdnum::Vector<float> result_dense(3,0);
 
   //multiply both
+  /*
+  [4][2][0]   [1]
+  [4][0][3] * [2]
+  [0][1][0]   [1]
+  */
   sparse.mv(result_sparse,vec);
-  dense.mv(reslut_dense,vec);
+  dense.mv(result_dense,vec);
   
   //outstream
-  std::cout<< "result dense: " << reslut_dense << std::endl;
+  std::cout<< "result dense: " << result_dense << std::endl;
   std::cout<< "result sparse: " << result_sparse << std::endl;
   //passed
+
+  //check equal result:
+  if (result_sparse == result_dense){
+    std::cout << "Operation was successful!" << std::endl;
+  }
+  else{
+    std::cout << "result was not correct" << std::endl;
+  }
+  
+
   
   //plotten nils mach mal
 }
