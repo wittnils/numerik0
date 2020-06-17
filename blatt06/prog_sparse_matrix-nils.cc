@@ -1,6 +1,11 @@
 #include <iostream>    // notwendig zur Ausgabe
 #include <vector>
 #include "/home/nilsw/numerik0-1/hdnum/hdnum.hh"    // hdnum header
+#include <tgmath.h>   //for pow function
+#include <ctime>      //for clock class
+#include <chrono>
+#include <algorithm>
+#include <fstream>
 
 namespace hdnum {
 
@@ -42,7 +47,6 @@ namespace hdnum {
       int domainDimension = 0; 
       int targetDimension = 0; 
       for(int k = 0; k < entries.size(); ++k){
-        std::cout << entries[k].i << std::endl;
         if(entries[k].i+1 > domainDimension){
           domainDimension = entries[k].i + 1;
         }
@@ -69,61 +73,59 @@ namespace hdnum {
 
 int main ()
 {
-//test for (b)
-  hdnum::SparseMatrix<float> test_sparse;
-  //sparse.AddEntry(1,1,0);
-  //should terminate
-  test_sparse.AddEntry(0,1,2);
-  test_sparse.AddEntry(0,0,4);
-  test_sparse.AddEntry(1,0,4);
-  test_sparse.AddEntry(1,2,3);
-  test_sparse.AddEntry(2,1,1);
-  /*Matrix der Form:
-  [4][2][0]
-  [4][0][3]
-  [0][1][0]
-  */
-  std::cout << "test" << std::endl; 
-  hdnum::DenseMatrix<float> test_dense(3,3);
-  test_dense[0][0]= 4;
-  test_dense[0][1]=2;
-  test_dense[1][0]=4;
-  test_dense[1][2] = 3;
-  test_dense[2][1]=1;
-  
-  //sparse.AddEntry(5,8,10);
-  hdnum::Vector<float> vec(3,1);
-  vec[1] = 2;
-  /*vec der Form:
-  [1]
-  [2]
-  [1]
-  */
+  //(c) 
+  std::ofstream outfile;
+  outfile.open("data.dat", std::ios_base::app);
+  const int n = 14;
+  const int N = pow(2,n);
+  hdnum::DenseMatrix<float> dense(N,N,0.0);
+  hdnum::SparseMatrix<float> sparse;
 
-  hdnum::Vector<float> result_test_sparse(3,0);
-  hdnum::Vector<float> result_test_dense(3,0);
-
-  //multiply both
+  //initialize Matrix
   /*
-  [4][2][0]   [1]
-  [4][0][3] * [2]
-  [0][1][0]   [1]
+  [2][2][2] [0]..[0]
+  [0][2][2][2] [0]..[0]
+  ....
+  ...............[0][2][2][2]
   */
-  test_dense.mv(result_test_dense,vec);
-  test_sparse.mv(result_test_sparse,vec);
-  
-  
-  //outstream
-  std::cout<< "result test_dense: " << result_test_dense << std::endl;
-  std::cout<< "result sparse: " << result_test_sparse << std::endl;
-  //passed
+  int j=0;
+  for ( int i=0; i<dense.rowsize (); ++i){
+    int k =0;
+    while (k< 3) {
+      dense[i][j] = 2;
+      sparse.AddEntry(i,j,2);
+      k++;
+    }
+   j++;
+  }
 
-  //check equal result:
-  if (result_test_sparse == result_test_dense){
-    std::cout << "Operation was successful!" << std::endl;
-  }
-  else{
-    std::cout << "result was not correct" << std::endl;
-  }
+  //vector x:
+  /*
+  [1]
+  ...
+  [1]
+  */
+  hdnum::Vector<float> x(N,1);
+  //and results:
+  hdnum::Vector<float> result_sparse(N,0);
+  hdnum::Vector<float> result_dense(N,0);
+  ////////////////////////////////////////////////////////////////////////
+  //chrono version
+  // https://stackoverflow.com/questions/25836511/how-to-use-chrono-to-determine-runtime 
+  //////////////////////////////////////////////////////////////////////////
+
+  auto begin_2 = std::chrono::high_resolution_clock::now();
+  //multiply
+  dense.mv(result_dense,x);
+  auto diff_2 = std::chrono::high_resolution_clock::now() - begin_2;
+  auto t2 = std::chrono::duration_cast<std::chrono::microseconds>(diff_2);
+
+  auto begin = std::chrono::high_resolution_clock::now();
+  //multiply
+  sparse.mv(result_sparse,x);
+  auto diff = std::chrono::high_resolution_clock::now() - begin;
+  auto t1 = std::chrono::duration_cast<std::chrono::microseconds>(diff);
+  outfile << N << " " << t1.count() << " " << t2.count() << std::endl;
+  
   return 0; 
 }

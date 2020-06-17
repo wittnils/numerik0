@@ -3,8 +3,8 @@
 #include "hdnum.hh"    // hdnum header
 #include <tgmath.h>   //for pow function
 #include <ctime>      //for clock class
-#include <chrono>
 #include <algorithm>
+#include <chrono>
 
 namespace hdnum {
 
@@ -95,7 +95,7 @@ int main ()
   [4][0][3]
   [0][1][0]
   */
-
+  std::cout << "test" << std::endl; 
   hdnum::DenseMatrix<float> test_dense(3,3);
   test_dense[0][0]= 4;
   test_dense[0][1]=2;
@@ -121,8 +121,9 @@ int main ()
   [4][0][3] * [2]
   [0][1][0]   [1]
   */
-  test_sparse.mv(result_test_sparse,vec);
   test_dense.mv(result_test_dense,vec);
+  test_sparse.mv(result_test_sparse,vec);
+  
   
   //outstream
   std::cout<< "result test_dense: " << result_test_dense << std::endl;
@@ -136,9 +137,8 @@ int main ()
   else{
     std::cout << "result was not correct" << std::endl;
   }
-
-  //(c) 
-  const int n = 10;
+   //(c) 
+  const int n = 14;
   const int N = pow(2,n);
   hdnum::DenseMatrix<float> dense(N,N,0.0);
   hdnum::SparseMatrix<float> sparse;
@@ -208,5 +208,5 @@ int main ()
   auto t1 = std::chrono::duration_cast<std::chrono::microseconds>(diff);
   std::cout << "duration of sparse with chrono(in microseconds): " << t1.count() << std::endl;
   
-  //plotten nils mach mal
+  return 0; 
 }
