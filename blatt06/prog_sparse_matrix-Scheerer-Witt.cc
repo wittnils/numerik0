@@ -45,32 +45,27 @@ namespace hdnum {
 
     template<typename V>
     void mv (Vector<V>& y, const Vector<V>& x) {
-      //array on false
-      bool a[entries.size()] = {0};
-      
-      for (std::size_t l = 0; l<entries.size(); l++){
-        //multipliziere nicht null eintrag der l-ten Zeile an j-ter Stelle mit j-tem Eintrag in vektor
-        //(lüge) TODO: die size von y wird intern durch die def vektormult angepasst, wir müssen also nichts mehr überprüfen
-        //TODO: man müsste noch die size von x anpassen
-
-        //wird aufgerufen, falls Zeile noch nicht verarbeitet
-        if (a[entries[l].i]==false){
-
-          y[entries[l].i] = entries[l].value * x[entries[l].j];
-
-          //durchsuche ob andere Einträge ungleich 0 in zeile ex.
-          for (std::size_t k = l+1; k<entries.size(); k++){
-            if (entries[l].i == entries[k].i){
-
-               y[entries[l].i] += entries[k].value*x[entries[k].j];
-               a[entries[l].i]= true;
-
-            }  
-          }
+    // Wir bestimmen die Dimension der Domain von A,
+    // indem wir das maximale i ermitteln   
+      int domainDimension = 0; 
+      int targetDimension = 0; 
+      for(int k = 0; k < entries.size(); ++k){
+        if(entries[k].i+1 > domainDimension){
+          domainDimension = entries[k].i + 1;
         }
-       
-          
-      }
+        if(entries[k].j+1 > targetDimension){
+          targetDimension = entries[k].j + 1;
+        }
+      } 
+      if(x.size() != domainDimension){
+        throw std::invalid_argument("Invalid dimenison of vector x");
+      }else{
+        // Wir berechnen das Matrix-Vektorprodukt
+        y.resize(targetDimension, 0);
+        for(int k = 0; k < entries.size(); ++k){
+          y[entries[k].i] += entries[k].value*x[entries[k].j]; 
+        }
+      } 
     }
 
   private:
@@ -95,7 +90,6 @@ int main ()
   [4][0][3]
   [0][1][0]
   */
-  std::cout << "test" << std::endl; 
   hdnum::DenseMatrix<float> test_dense(3,3);
   test_dense[0][0]= 4;
   test_dense[0][1]=2;
@@ -103,7 +97,6 @@ int main ()
   test_dense[1][2] = 3;
   test_dense[2][1]=1;
   
-  //sparse.AddEntry(5,8,10);
   hdnum::Vector<float> vec(3,1);
   vec[1] = 2;
   /*vec der Form:
@@ -124,20 +117,22 @@ int main ()
   test_dense.mv(result_test_dense,vec);
   test_sparse.mv(result_test_sparse,vec);
   
-  
   //outstream
   std::cout<< "result test_dense: " << result_test_dense << std::endl;
   std::cout<< "result sparse: " << result_test_sparse << std::endl;
   //passed
 
-  //check equal result:
+  //(b) check equal result:
   if (result_test_sparse == result_test_dense){
     std::cout << "Operation was successful!" << std::endl;
   }
   else{
     std::cout << "result was not correct" << std::endl;
   }
-   //(c) 
+
+   //(c) wir haben n jeweils verändert und in data.dat eingelesen
+  std::ofstream outfile;
+  outfile.open("data.dat", std::ios_base::app);
   const int n = 14;
   const int N = pow(2,n);
   hdnum::DenseMatrix<float> dense(N,N,0.0);
@@ -145,19 +140,15 @@ int main ()
 
   //initialize Matrix
   /*
-  [2][2][2] [0]..[0]
-  [0][2][2][2] [0]..[0]
+  [2][0] [0]..[0]
+  [0][2] [0]..[0]
   ....
-  ...............[0][2][2][2]
+  .........[0][2]
   */
   int j=0;
   for ( int i=0; i<dense.rowsize (); ++i){
-    int k =0;
-    while (k< 3) {
-      dense[i][j] = 2;
-      sparse.AddEntry(i,j,2);
-      k++;
-    }
+   dense[i][j] = 2;
+   sparse.AddEntry(i,j,2);
    j++;
   }
 
@@ -172,41 +163,19 @@ int main ()
   hdnum::Vector<float> result_sparse(N,0);
   hdnum::Vector<float> result_dense(N,0);
 
-  // see the following code in stackoverflow: (falls du auch gucken wolltest :D)
-  // https://stackoverflow.com/questions/3220477/how-to-use-clock-in-c
-  std::clock_t start;
-  double duration;
-
-  start = std::clock();
-  //multiply
-  dense.mv(result_dense,x);
-  duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-  std::cout<<"duration of dense (in seconds): "<< duration <<'\n';
-
-  start = std::clock();
-  //multiply
-  sparse.mv(result_sparse,x);
-  duration = ( std::clock() - start ) / (double) CLOCKS_PER_SEC;
-  std::cout<<"duration of sparse (in seconds): "<< duration <<'\n';
-
-  ////////////////////////////////////////////////////////////////////////
-  //chrono version
-  // https://stackoverflow.com/questions/25836511/how-to-use-chrono-to-determine-runtime 
-  //////////////////////////////////////////////////////////////////////////
-
   auto begin_2 = std::chrono::high_resolution_clock::now();
   //multiply
   dense.mv(result_dense,x);
   auto diff_2 = std::chrono::high_resolution_clock::now() - begin_2;
   auto t2 = std::chrono::duration_cast<std::chrono::microseconds>(diff_2);
-  std::cout << "duration of dense with chrono (in microseconds): " << t2.count() << std::endl;
 
   auto begin = std::chrono::high_resolution_clock::now();
   //multiply
   sparse.mv(result_sparse,x);
   auto diff = std::chrono::high_resolution_clock::now() - begin;
   auto t1 = std::chrono::duration_cast<std::chrono::microseconds>(diff);
-  std::cout << "duration of sparse with chrono(in microseconds): " << t1.count() << std::endl;
+  outfile << N << " " << t1.count() << " " << t2.count() << std::endl;
+  
   
   return 0; 
 }
