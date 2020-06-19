@@ -1,6 +1,6 @@
 #include <iostream>    // notwendig zur Ausgabe
 #include <vector>
-#include "/home/nilsw/numerik0-1/hdnum/hdnum.hh"    // hdnum header
+#include "hdnum.hh"    // hdnum header
 #include <tgmath.h>   //for pow function
 #include <ctime>      //for clock class
 #include <chrono>
