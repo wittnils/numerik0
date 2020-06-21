@@ -2,6 +2,8 @@
 #include <vector>
 #include "hdnum.hh"    // hdnum header
 #include <tgmath.h> 
+#include <chrono>
+#include <fstream>
 //g++ -I../hdnum/ -o prog-iterative prog_iterative_solvers.cc
 namespace hdnum {
 
@@ -59,7 +61,7 @@ namespace hdnum {
       v = d_k; 
       v *= 1./maxEig; 
       // 4. x = x + v
-      x_k = x_k + v; 
+      x_k = x_k - v; 
       // d = d-Av
       A.mv(Ax_k,v);
       d_k = d_k - Ax_k;
@@ -105,10 +107,10 @@ namespace hdnum {
     // Berechne den Defekt
     Vector<V> d_0(n, 0.0); // initialer Defekt
     Vector<V> d_k(n, 0.0); // Durchlaufender Defekt
-    Vector<V> x_k(n,0.0);  // k-te Iterierte
+    Vector<V> x_k(n,0.0);  // k-te Iterierte 
     Vector<V> Ax_k(n,0.0); // Zwischenspeichervariablen
     Vector<V> v(n,0.0); 
-    DenseMatrix<V> W_i(n,n,0.0);
+    
     // Für k=0 ist x_k = x_0
     x_k = x_0;
     // Bestimme initialen Defekt
@@ -116,8 +118,9 @@ namespace hdnum {
     d_0 = b-Ax_k; // d_0 = b - Ax_k
     d_k = d_0; // k=0 => d_k = d_0
     int i = 0;
+
     // Stelle W^{-1} auf, W^{-1} ist ebenfalls untere Dreiecksmatrix
-    for(int i = 0; i<n; ++i){
+    /*for(int i = 0; i<n; ++i){
       for(int j = 0; j <= i; ++j){ //Elemente über der Hauptidag. sind 0
         if(j==i){
           // Wegen W, W^{-1} untere Dreiecksmatrix 
@@ -138,14 +141,25 @@ namespace hdnum {
         }
       }
     }
+    */
     while(norm(d_k) > epsilon*norm(d_0) && i<NumberIterations){
-      // 3. Löse W v = d. Hier ist W = L+D
-      W_i.mv(v,d_k);
-      // 4. x = x + v
-      x_k = x_k + v; 
-      // d = d-Av
-      A.mv(Ax_k,v);
-      d_k = d_k - Ax_k;
+      // 3. Löse W v = d. 
+      // Wir setzen insg. v = W^{-1} d = W_i (b-Ax_k) = W_i b - W_i Ax_k = W_i b - (L+D)^{-1}(L+D+U) x_k = W_i b - (L+D)^{-1}(L+D)x_k +(L+D)^{-1}(U) x_k
+      // = W_i b - x_k + W_i U x_k = W_i(b-Ux_k) <=> x_k + v = x_k+1 = W_i (b-Ux_k) => (L+D)x_k+1 = b - Ux_k = Lx_k+1 + Dx_k+1 = b-Ux_k 
+      // => Dx_k+1 = b - Ux_k - Lx_k+1 => x_k+1 = D^{-1} *(b-Ux_k -Lx_k+1)
+      v = x_k; // v hier x_k
+      for(int i=0; i<n; ++i){
+        x_k[i] = b[i];
+        for(int m = 0; m < i; ++m){
+          x_k[i] -= A[i][m]*x_k[m];
+        }
+        for(int m = i+1; m<n; ++m){
+          x_k[i] -= A[i][m]*v[m];
+        }
+        x_k[i] *= 1./A[i][i];  
+      }
+      A.mv(Ax_k,x_k);
+      d_k = b - Ax_k;
       ++i;
     }
     return x_k;
@@ -154,8 +168,11 @@ namespace hdnum {
 
 int main ()
 {
-  int N = 16;
-
+  int n = 8;
+  int N = pow(2,n);
+  std::ofstream outfile;
+  outfile.open("plotdata.dat", std::ios_base::app);
+  
   // Testmatrix aufsetzen
   hdnum::DenseMatrix<double> A(N,N,.0);
   for (typename hdnum::DenseMatrix<double>::size_type i=0; i<A.rowsize(); ++i)
@@ -168,9 +185,9 @@ int main ()
     }
     A[i][i] -= 2.0;
   }
-
   // Rechte Seite und Lösungsvektor
   hdnum::Vector<double> x(N, 0.0);
+  hdnum::Vector<double> LinSolve_x(N, 0.0);
   hdnum::Vector<double> b(N, 1.0);
 
 
@@ -185,19 +202,44 @@ int main ()
   // Also wegen B=I hier der Alogirthmus konvergiert für alle \maxEig mit \maxEig \le \lambda_{max}^{-1}(A). Aus den Gerschgorin-Kreisen 
   // erhalten wir die Abschätzung (s. Matrixstruktur), dass \vert \lambda \vert \le 4. Offensichtlich ist A negativ definit und dann ist
   // Ist setzen wir maxEig = -4
- double maxEig = -4.; 
- int NumberIterations = 200;
+ double maxEig = -3.; 
+ int NumberIterations = 1000;
 
+ 
  hdnum:: Vector<double> resultGS(N, 0.0);
  hdnum:: Vector<double> resultJac(N, 0.0);
  hdnum:: Vector<double> resultRichardson(N, 0.0);
+ outfile << N << " "; 
  
+ auto begin = std::chrono::high_resolution_clock::now();
  resultRichardson = hdnum::richardsonIteration(A, x,  b, pow(10,-4), maxEig, NumberIterations);
+ auto diff = std::chrono::high_resolution_clock::now() - begin;
+ auto t = std::chrono::duration_cast<std::chrono::microseconds>(diff); 
+ outfile << t.count() << " ";
+
+ begin = std::chrono::high_resolution_clock::now();
  resultJac = hdnum::jacobi(A, x,  b, pow(10,-4),NumberIterations);
+ diff = std::chrono::high_resolution_clock::now() - begin;
+ t = std::chrono::duration_cast<std::chrono::microseconds>(diff); 
+ outfile << t.count() << " ";
+
+ begin = std::chrono::high_resolution_clock::now();
  resultGS = hdnum::gauss_seidel(A, x,  b, pow(10,-4),NumberIterations);
+ diff = std::chrono::high_resolution_clock::now() - begin;
+ t = std::chrono::duration_cast<std::chrono::microseconds>(diff); 
+ outfile << t.count() << " ";
+
+ begin = std::chrono::high_resolution_clock::now();
+ hdnum::linsolve(A,LinSolve_x,b);
+ diff = std::chrono::high_resolution_clock::now() - begin;
+ t = std::chrono::duration_cast<std::chrono::microseconds>(diff); 
+ outfile << t.count() << " " << std::endl;
+
+
  std::cout << resultGS << std::endl;
  std::cout << resultJac << std::endl;
  std::cout << resultRichardson << std::endl;
  
+ std::cout << LinSolve_x << std::endl;
 
 }
