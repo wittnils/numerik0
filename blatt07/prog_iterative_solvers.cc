@@ -116,15 +116,25 @@ namespace hdnum {
     d_0 = b-Ax_k; // d_0 = b - Ax_k
     d_k = d_0; // k=0 => d_k = d_0
     int i = 0;
-    // Stelle W^{-1} auf
+    // Stelle W^{-1} auf, W^{-1} ist ebenfalls untere Dreiecksmatrix
     for(int i = 0; i<n; ++i){
       for(int j = 0; j <= i; ++j){ //Elemente über der Hauptidag. sind 0
         if(j==i){
+          // Wegen W, W^{-1} untere Dreiecksmatrix 
           W_i[i][j] = 1./A[i][j];
         }else{
+          // Wir haben insg., dass (L+D)*W^{-1} = I nach Konstr. 
+          // Wir bauen W_i schritweise auf und wir konstruieren hier das Element W_i[i][j]. Alle Zeilen darüber
+          // wurden bereits konstruiert und es gilt für j > i dass W[i][j]=0 und dasselbe gilt für A. 
+          // Wir suchen nun ein W[i][j], s.d. i-te Zeile von A * j-te Spalte von W_i = 0. Bis zum i-1-ten 
+          // Element kennen wir die j-te Spalte von W_i bereits und für alle Elemente darunter ist i-te Zeile von A
+          // *j-te Spalte von W_i = 0, denn dort ist die i-te zeile von A =0. Da überhalb der HD W_i = 0 ist, gehen wir
+          // ab der HD los und bilde das Produkt aus i-ter Zeile von A und j-ter Spalte von W_i bis zu unserem Element
+          // Das wir mit a_ii mult., damit erhalten wir die Bedinung, die hier realisiert wird
           for(int k = j; k < i-1; ++k){
             W_i[i][j] -= A[i][k]*W_i[j][k];
           }
+          // und wir teilen durch das HD-Element
           W_i[i][j] *= 1./A[i][i];
         }
       }
