@@ -125,12 +125,11 @@ namespace hdnum {
         }else{
           // Wir haben insg., dass (L+D)*W^{-1} = I nach Konstr. 
           // Wir bauen W_i schritweise auf und wir konstruieren hier das Element W_i[i][j]. Alle Zeilen darüber
-          // wurden bereits konstruiert und es gilt für j > i dass W[i][j]=0 und dasselbe gilt für A. 
-          // Wir suchen nun ein W[i][j], s.d. i-te Zeile von A * j-te Spalte von W_i = 0. Bis zum i-1-ten 
-          // Element kennen wir die j-te Spalte von W_i bereits und für alle Elemente darunter ist i-te Zeile von A
-          // *j-te Spalte von W_i = 0, denn dort ist die i-te zeile von A =0. Da überhalb der HD W_i = 0 ist, gehen wir
-          // ab der HD los und bilde das Produkt aus i-ter Zeile von A und j-ter Spalte von W_i bis zu unserem Element
-          // Das wir mit a_ii mult., damit erhalten wir die Bedinung, die hier realisiert wird
+          // wurden bereits konstruiert. 
+          // Wenn wir die i-te Zeile von A mit der j-ten Spalte von W_i mult. kommen folgende Fälle auf
+          // 1. Für k > i ist A[i][k] = 0   2. Für m < j ist W_i[m][j] = 0
+          // D.h. wir erhalten insg., dass nur für die Indizes j <= j < i-1 beie Faktoren != 0 sind. 
+          // Wir wollen, dass es insg. Null ergibt => bilden also das "Skalarprodukt" und teilen durch -1./A[i][i]
           for(int k = j; k < i-1; ++k){
             W_i[i][j] -= A[i][k]*W_i[j][k];
           }
