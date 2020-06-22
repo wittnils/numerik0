@@ -25,6 +25,19 @@ namespace hdnum {
         entries.push_back(MatrixEntry{.i=i, .j=j, .value=value});
     }
 
+    Vector<MatrixEntry>& getEntries(){
+      Vector<MatrixEntry> *target = new Vector<MatrixEntry>; 
+      for(int i = 0; i<entries.size; ++i){
+        target.push_back(entries[i]); 
+      }
+    }
+
+    void print(){
+      for(int i = 0; i < entries.size(); ++i){
+        std::cout << entries[i].value << std::endl;
+      } 
+    }
+
     template<typename V>
     void mv (Vector<V>& y, const Vector<V>& x) {
 
@@ -103,6 +116,7 @@ namespace hdnum {
   }
   template<typename V>
   Vector<V> gauss_seidel(DenseMatrix<V>& A, Vector<V>& x_0, Vector<V>& b, V epsilon, int NumberIterations){
+    int n = A.colsize(); 
     // Berechne den Defekt
     Vector<V> d_0(n, 0.0); // initialer Defekt
     Vector<V> d_k(n, 0.0); // Durchlaufender Defekt
@@ -125,17 +139,14 @@ namespace hdnum {
       // Wir setzen insg. v = W^{-1} d = W_i (b-Ax_k) = W_i b - W_i Ax_k = W_i b - (L+D)^{-1}(L+D+U) x_k = W_i b - (L+D)^{-1}(L+D)x_k +(L+D)^{-1}(U) x_k
       // = W_i b - x_k + W_i U x_k = W_i(b-Ux_k) <=> x_k + v = x_k+1 = W_i (b-Ux_k) => (L+D)x_k+1 = b - Ux_k = Lx_k+1 + Dx_k+1 = b-Ux_k 
       // => Dx_k+1 = b - Ux_k - Lx_k+1 => x_k+1 = D^{-1} *(b-Ux_k -Lx_k+1)
-      v = x_k; // v hier x_k
-      for(int i=0; i<A.entries.size(); ++i){
-        x_k[i] = b[i];
+      for(int i=0; i<n; ++i){
+        v[i] = d_k[i];
         for(int m = 0; m < i; ++m){
-          x_k[i] -= A[i][m]*x_k[m];
+          v[i] -= A[i][m]*v[m];
         }
-        for(int m = i+1; m<n; ++m){
-          x_k[i] -= A[i][m]*v[m];
-        }
-        x_k[i] *= 1./A[i][i];  
+        v[i] *= 1./A[i][i];  
       }
+      x_k = x_k+v;
       A.mv(Ax_k,x_k);
       d_k = b - Ax_k;
       ++i; ++counter;
@@ -143,31 +154,15 @@ namespace hdnum {
     std::cout << counter; 
     return x_k;
   }
-  template<typename V> 
-  Vector<V> gauss_seidel_SPARSE(SparseMatrix<V>& A, Vector<V>& x_0, Vector<V>& b, V epsilon, int NumberIterations){
-    int n = A.colsize(); 
-    // Berechne den Defekt
-    Vector<V> d_0(n, 0.0); // initialer Defekt
-    Vector<V> d_k(n, 0.0); // Durchlaufender Defekt
-    Vector<V> x_k(n,0.0);  // k-te Iterierte 
-    Vector<V> Ax_k(n,0.0); // Zwischenspeichervariablen
-    Vector<V> v(n,0.0); 
-    int counter = 0; 
-    // Für k=0 ist x_k = x_0
-    x_k = x_0;
-    // Bestimme initialen Defekt
-    A.mv(Ax_k, x_0); // Ax_k = A*x_0 = A*x_k
-    d_0 = b-Ax_k; // d_0 = b - Ax_k
-    d_k = d_0; // k=0 => d_k = d_0
-    int i = 0;
-    V pivot = 0.0;
+  template<typename V>
+  Vector<V> gsSparse(SparseMatrix<V>& A_sparse; DenseMatrix<V>& A, Vector<V>& x_0, Vector<V>& b, V epsilon, int NumberIterations){
     
   }
 }
 
 int main ()
 {
-  int n = 8;
+  int n = 4;
   int N = pow(2,n);
   std::ofstream outfile;
   outfile.open("plotdata.dat", std::ios_base::app);
@@ -188,15 +183,16 @@ int main ()
   hdnum::Vector<double> x(N, 0.0);
   hdnum::Vector<double> LinSolve_x(N, 0.0);
   hdnum::Vector<double> b(N, 1.0);
-  hdnum::SparseMatrix<double> A_S;
-  for(int i = 0; i < N; ++i){
-    for(int k = 0; k< N; ++k){
-      A_S.AddEntry(i,k,A[i][k]);
+
+  // Erstelle Sparse-Version von A
+  hdnum::SparseMatrix<double> A_sparse; 
+  for(int i = 0; i < N ; ++i){
+    for(int j = 0; j < N; ++j){
+      A_sparse.AddEntry(i,j,A[i][j]); 
     }
   }
-
-
-  
+  A_sparse.print();  
+   
   // Lösen Sie nun A*x=b iterativ
 
   //Wir können anhand der gegebenen Matrix die Überschätzung aus Satz 14.2 aus den Gerschgorin Kreisen die Eigenwerte abschätzen 
@@ -228,17 +224,20 @@ int main ()
  outfile << t.count() << " ";
 
  begin = std::chrono::high_resolution_clock::now();
- resultGS = hdnum::gauss_seidel_SPARSE(A_S, x,  b, pow(10,-4),NumberIterations);
+ resultGS = hdnum::gauss_seidel(A, x,  b, pow(10,-4),NumberIterations);
  diff = std::chrono::high_resolution_clock::now() - begin;
  t = std::chrono::duration_cast<std::chrono::microseconds>(diff); 
  outfile << t.count() << " ";
+
+ std::cout << resultGS;
 
  begin = std::chrono::high_resolution_clock::now();
  hdnum::linsolve(A,LinSolve_x,b);
  diff = std::chrono::high_resolution_clock::now() - begin;
  t = std::chrono::duration_cast<std::chrono::microseconds>(diff); 
  outfile << t.count() << " " << std::endl;
-
+ 
+ 
 
 
 
