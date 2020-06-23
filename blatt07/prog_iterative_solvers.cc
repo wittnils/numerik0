@@ -61,6 +61,7 @@ int main ()
   hdnum::Vector<double> x(N, 0.0);
   hdnum::Vector<double> b(N, 1.0);
 
+
   // Lösen Sie nun A*x=b iterativ
 
 
