@@ -261,7 +261,7 @@ int main ()
   // Lösen Sie nun A*x=b iterativ
 
   //Wir können anhand der gegebenen Matrix die Überschätzung aus Satz 14.2 aus den Gerschgorin Kreisen die Eigenwerte abschätzen 
-  // \lvert -2 - \xi \rvert \le 2 \implies A hat die größten EW 4 
+  // \lvert -2 - \xi \rvert \le 2 \implies A hat die größten EW -4 
   
   // Richardson-Verfahren. B = 1/\maxEig \cdot I, aus Satz 14.1 erhalten wir, dass für alle \maxEig mit \maxEig \le \lambda_{max}^{-1}(BA)
   // Also wegen B=I hier der Alogirthmus konvergiert für alle \maxEig mit \maxEig \le \lambda_{max}^{-1}(A). Aus den Gerschgorin-Kreisen 
