@@ -25,11 +25,8 @@ namespace hdnum {
         entries.push_back(MatrixEntry{.i=i, .j=j, .value=value});
     }
 
-    Vector<MatrixEntry>& getEntries(){
-      Vector<MatrixEntry> *target = new Vector<MatrixEntry>; 
-      for(int i = 0; i<entries.size; ++i){
-        target.push_back(entries[i]); 
-      }
+    std::vector<MatrixEntry> getEntries(){
+      return entries; 
     }
 
     void print(){
@@ -155,8 +152,76 @@ namespace hdnum {
     return x_k;
   }
   template<typename V>
-  Vector<V> gsSparse(SparseMatrix<V>& A_sparse; DenseMatrix<V>& A, Vector<V>& x_0, Vector<V>& b, V epsilon, int NumberIterations){
+  Vector<V> gsSparse(SparseMatrix<V>& A_sparse, DenseMatrix<V>& A, Vector<V>& x_0, Vector<V>& b, V epsilon, int NumberIterations){
+    int n = A.colsize(); 
+    // Berechne den Defekt
+    Vector<V> d_0(n, 0.0); // initialer Defekt
+    Vector<V> d_k(n, 0.0); // Durchlaufender Defekt
+    Vector<V> x_k(n,0.0);  // k-te Iterierte 
+    Vector<V> Ax_k(n,0.0); // Zwischenspeichervariablen
+    Vector<V> v(n,0.0); 
+    int counter = 0; 
+    // Für k=0 ist x_k = x_0
+    x_k = x_0;
+    // Bestimme initialen Defekt
+    A_sparse.mv(Ax_k, x_0); // Ax_k = A*x_0 = A*x_k
+    d_0 = b-Ax_k; // d_0 = b - Ax_k
+    d_k = d_0; // k=0 => d_k = d_0
+    int i = 0;
+
+    // Stelle W^{-1} auf, W^{-1} ist ebenfalls untere Dreiecksmatrix
     
+    while(norm(d_k) > epsilon*norm(d_0) && i<NumberIterations){
+      // 3. Löse W v = d. 
+      // Wir setzen insg. v = W^{-1} d = W_i (b-Ax_k) = W_i b - W_i Ax_k = W_i b - (L+D)^{-1}(L+D+U) x_k = W_i b - (L+D)^{-1}(L+D)x_k +(L+D)^{-1}(U) x_k
+      // = W_i b - x_k + W_i U x_k = W_i(b-Ux_k) <=> x_k + v = x_k+1 = W_i (b-Ux_k) => (L+D)x_k+1 = b - Ux_k = Lx_k+1 + Dx_k+1 = b-Ux_k 
+      // => Dx_k+1 = b - Ux_k - Lx_k+1 => x_k+1 = D^{-1} *(b-Ux_k -Lx_k+1)
+      for(int i=0; i<n; ++i){
+        v[i] = d_k[i];
+        for(int m = 0; m < i; ++m){
+          v[i] -= A[i][m]*v[m];
+        }
+        v[i] *= 1./A[i][i];  
+      }
+      x_k = x_k+v;
+      A_sparse.mv(Ax_k,x_k);
+      d_k = b - Ax_k;
+      ++i; ++counter;
+    }
+    std::cout << counter; 
+    return x_k;
+  }
+  template<typename V>
+  Vector<V> jacobiSparse(SparseMatrix<V>& A_sparse, DenseMatrix<V>& A, Vector<V>& x_0, Vector<V>& b, V epsilon, int NumberIterations){
+    int n = A.colsize(); 
+    // Berechne den Defekt
+    Vector<V> d_0(n, 0.0); // initialer Defekt
+    Vector<V> d_k(n, 0.0); // Durchlaufender Defekt
+    Vector<V> x_k(n,0.0);  // k-te Iterierte
+    Vector<V> Ax_k(n,0.0); // Zwischenspeichervariablen
+    Vector<V> v(n,0.0); 
+    // Für k=0 ist x_k = x_0
+    x_k = x_0;
+    // Bestimme initialen Defekt
+    A_sparse.mv(Ax_k, x_0); // Ax_k = A*x_0 = A*x_k
+    d_0 = b-Ax_k; // d_0 = b - Ax_k
+    d_k = d_0; // k=0 => d_k = d_0
+    int i = 0; 
+    while(norm(d_k) > epsilon*norm(d_0) && i<NumberIterations){
+      /*3. Löse W v = d. Hier ist W = diag(a_11,...,a_nn), also W^{-1} = diag(1./a_11,...,1./a_nn), damit ist
+      */
+      v = d_k;  
+      for(int k = 0; k < n; ++k){
+        v[k] *= 1./A[k][k];
+      }
+      // 4. x = x + v
+      x_k = x_k + v; 
+      // d = d-Av
+      A_sparse.mv(Ax_k,v);
+      d_k = d_k - Ax_k;
+      ++i;
+    }
+    return x_k;
   }
 }
 
@@ -191,7 +256,7 @@ int main ()
       A_sparse.AddEntry(i,j,A[i][j]); 
     }
   }
-  A_sparse.print();  
+  //A_sparse.print();  
    
   // Lösen Sie nun A*x=b iterativ
 
@@ -202,19 +267,28 @@ int main ()
   // Also wegen B=I hier der Alogirthmus konvergiert für alle \maxEig mit \maxEig \le \lambda_{max}^{-1}(A). Aus den Gerschgorin-Kreisen 
   // erhalten wir die Abschätzung (s. Matrixstruktur), dass \vert \lambda \vert \le 4. Offensichtlich ist A negativ definit und dann ist
   // Ist setzen wir maxEig = -4
- double maxEig = -3.; 
+ double maxEig = -4.; 
  int NumberIterations = 100000;
 
  
  hdnum:: Vector<double> resultGS(N, 0.0);
  hdnum:: Vector<double> resultJac(N, 0.0);
  hdnum:: Vector<double> resultRichardson(N, 0.0);
+ hdnum:: Vector<double> resultJacSparse(N, 0.0);
+ hdnum:: Vector<double> resultGSSparse(N, 0.0);
  outfile << N << " "; 
  
  auto begin = std::chrono::high_resolution_clock::now();
- //resultRichardson = hdnum::richardsonIteration(A, x,  b, pow(10,-4), maxEig, NumberIterations);
+ //resultJacSparse = hdnum::jacobiSparse(A_sparse,A,  x,  b, pow(10,-4), NumberIterations);
  auto diff = std::chrono::high_resolution_clock::now() - begin;
  auto t = std::chrono::duration_cast<std::chrono::microseconds>(diff); 
+ outfile << t.count() << " ";
+
+
+ begin = std::chrono::high_resolution_clock::now();
+ //resultRichardson = hdnum::richardsonIteration(A, x,  b, pow(10,-4), maxEig, NumberIterations);
+  diff = std::chrono::high_resolution_clock::now() - begin;
+ t = std::chrono::duration_cast<std::chrono::microseconds>(diff); 
  outfile << t.count() << " ";
 
  begin = std::chrono::high_resolution_clock::now();
@@ -229,7 +303,13 @@ int main ()
  t = std::chrono::duration_cast<std::chrono::microseconds>(diff); 
  outfile << t.count() << " ";
 
- std::cout << resultGS;
+ begin = std::chrono::high_resolution_clock::now();
+ resultGSSparse = hdnum::gsSparse(A_sparse, A, x,  b, pow(10,-4),NumberIterations);
+ diff = std::chrono::high_resolution_clock::now() - begin;
+ t = std::chrono::duration_cast<std::chrono::microseconds>(diff); 
+ outfile << t.count() << " ";
+
+ std::cout << resultJac;
 
  begin = std::chrono::high_resolution_clock::now();
  hdnum::linsolve(A,LinSolve_x,b);
