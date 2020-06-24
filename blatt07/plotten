@@ -1,0 +1,7 @@
+#!/bin/bash
+# visualisierungsskritp
+
+set xrange[16:512]
+set logscale y
+
+plot 'plotdata.dat' using 1:2 with lines title "Richardson",'plotdata.dat' using 1:3 with lines title "JacobiDense", 'plotdata.dat' using 1:4 with lines title "JacobiSparse",'plotdata.dat' using 1:5 with lines title "GSDense", 'plotdata.dat' using 1:6 with lines title "GSSparse",'plotdata.dat' using 1:7 with lines title "linsolve"

@@ -29,12 +29,6 @@ namespace hdnum {
       return entries; 
     }
 
-    void print(){
-      for(int i = 0; i < entries.size(); ++i){
-        std::cout << entries[i].value << std::endl;
-      } 
-    }
-
     template<typename V>
     void mv (Vector<V>& y, const Vector<V>& x) {
 
@@ -148,7 +142,6 @@ namespace hdnum {
       d_k = b - Ax_k;
       ++i; ++counter;
     }
-    std::cout << counter; 
     return x_k;
   }
   template<typename V>
@@ -187,8 +180,7 @@ namespace hdnum {
       A_sparse.mv(Ax_k,x_k);
       d_k = b - Ax_k;
       ++i; ++counter;
-    }
-    std::cout << counter; 
+    } 
     return x_k;
   }
   template<typename V>
@@ -227,7 +219,7 @@ namespace hdnum {
 
 int main ()
 {
-  int n = 4;
+  int n = 9;
   int N = pow(2,n);
   std::ofstream outfile;
   outfile.open("plotdata.dat", std::ios_base::app);
@@ -268,7 +260,7 @@ int main ()
   // erhalten wir die Abschätzung (s. Matrixstruktur), dass \vert \lambda \vert \le 4. Offensichtlich ist A negativ definit und dann ist
   // Ist setzen wir maxEig = -4
  double maxEig = -4.; 
- int NumberIterations = 100000;
+ int NumberIterations = 30000;
 
  
  hdnum:: Vector<double> resultGS(N, 0.0);
@@ -277,22 +269,21 @@ int main ()
  hdnum:: Vector<double> resultJacSparse(N, 0.0);
  hdnum:: Vector<double> resultGSSparse(N, 0.0);
  outfile << N << " "; 
- 
+
  auto begin = std::chrono::high_resolution_clock::now();
- //resultJacSparse = hdnum::jacobiSparse(A_sparse,A,  x,  b, pow(10,-4), NumberIterations);
+ //resultRichardson = hdnum::richardsonIteration(A, x,  b, pow(10,-4), maxEig, NumberIterations);
  auto diff = std::chrono::high_resolution_clock::now() - begin;
  auto t = std::chrono::duration_cast<std::chrono::microseconds>(diff); 
  outfile << t.count() << " ";
 
-
  begin = std::chrono::high_resolution_clock::now();
- //resultRichardson = hdnum::richardsonIteration(A, x,  b, pow(10,-4), maxEig, NumberIterations);
-  diff = std::chrono::high_resolution_clock::now() - begin;
+ resultJac = hdnum::jacobi(A, x,  b, pow(10,-4),NumberIterations);
+ diff = std::chrono::high_resolution_clock::now() - begin;
  t = std::chrono::duration_cast<std::chrono::microseconds>(diff); 
  outfile << t.count() << " ";
 
  begin = std::chrono::high_resolution_clock::now();
- //resultJac = hdnum::jacobi(A, x,  b, pow(10,-4),NumberIterations);
+ resultJacSparse = hdnum::jacobiSparse(A_sparse,A,  x,  b, pow(10,-4), NumberIterations);
  diff = std::chrono::high_resolution_clock::now() - begin;
  t = std::chrono::duration_cast<std::chrono::microseconds>(diff); 
  outfile << t.count() << " ";
@@ -308,8 +299,6 @@ int main ()
  diff = std::chrono::high_resolution_clock::now() - begin;
  t = std::chrono::duration_cast<std::chrono::microseconds>(diff); 
  outfile << t.count() << " ";
-
- std::cout << resultJac;
 
  begin = std::chrono::high_resolution_clock::now();
  hdnum::linsolve(A,LinSolve_x,b);
