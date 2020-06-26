@@ -1,0 +1,34 @@
+Newton-Verfahren
+
+Startvektor:
+x-Wert: -2; y-Wert: -1
+Ergebnis: 
+[ 0] -1.8371173e+00
+[ 1] -7.9056942e-01
+
+Startvektor:
+x-Wert: 2; y-Wert: -1
+Ergebnis: 
+[ 0]  1.8371173e+00
+[ 1] -7.9056942e-01
+
+Startvektor:
+x-Wert: 2; y-Wert: 1
+Ergebnis: 
+[ 0]  1.8371173e+00
+[ 1]  7.9056942e-01
+
+Startvektor:
+x-Wert: -2; y-Wert: 1
+Ergebnis: 
+[ 0] -1.8371173e+00
+[ 1]  7.9056942e-01
+
+Relaxationsverfahren
+Startvektor:
+x-Wert: 0; y-Wert: 0
+Unser gewähltes Sigma: 0.4
+Ergebnis: 
+[ 0]  1.8371175e+00
+[ 1]  7.9056945e-01
+

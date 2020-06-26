@@ -1,8 +1,10 @@
 #include <iostream>
 #include <vector>
 #include "hdnum.hh"
-
-
+//g++ -I../hdnum/ -o prog-nonlinear_complex prog_nonlinear_solvers_fractal.cc
+// -x^4 - x^3 + 5 x^2 - x + 6, Mit Nullstellen (x+i)(x-i)(x+3)(2-x)
+//mit Jacobi Matrix:
+// -4x^3 -3x^2 +10x -1
 template<class N>
 class PolynomialProblem
 {
@@ -22,13 +24,13 @@ public:
   // Funktionsauswertung
   void F (const hdnum::Vector<N>& x, hdnum::Vector<N>& result) const
   {
-    result[0] = x[0]*x[0]*x[0] - 2.0*x[0] + 2.0;
+    result[0] = -x[0]*x[0]*x[0]*x[0] - x[0]*x[0]*x[0] + 5. *x[0]*x[0] - x[0] + 6.0;
   }
 
   // Jacobimatrix
   void F_x (const hdnum::Vector<N>& x, hdnum::DenseMatrix<N>& result) const
   {
-    result[0][0] = 3.0*x[0]*x[0] - 2.0;
+    result[0][0] = -4. *x[0]*x[0]*x[0] - 3. *x[0]*x[0] + 10. *x[0] - 1.0;
   }
 };
 
@@ -64,14 +66,28 @@ int main ()
         // Falls unser Newton-Löser konvertiert ist, stellen wir fest welche Nullstelle
         // Nullstelle wir getroffen haben und legen einen Index für jede Nullstelle fest.
 
+        //Polynom besitzt in C genau drei NS, denen weisen wir Index zu 
+        // if (u[0].real() < 0)
+        //   id = 1;
+        // else if (u[0].imag() < 0)
+        //   id = 2;
+        // else if (u[0].imag() > 0)
+        //   id = 3;
+        // else
+        //   std::cout << "Unbekannte Nullstelle!" << std::endl;
+
         if (u[0].real() < 0)
           id = 1;
-        else if (u[0].imag() < 0)
+        else if (u[0].real() > 0)
           id = 2;
-        else if (u[0].imag() > 0)
+        else if (u[0].imag() < 0)
           id = 3;
+        else if (u[0].imag() > 0)
+          id = 4;
         else
           std::cout << "Unbekannte Nullstelle!" << std::endl;
+
+
 
         // Damit auch der "Abstand" zur Nullstelle (im Sinne von benötigten Iterationen
         // um sie zu erreichen) sichtbar wird, addieren wir noch die Iterationszahl
