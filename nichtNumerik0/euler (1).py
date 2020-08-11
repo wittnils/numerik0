@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 h = float(input("Schrittweite: "))
 # Berechnen des n+1-ten Schrittes 
 def nextVal(y_n, h):
-    return y_n+h*y_n 
+    return y_n+h*(math.sin(y_n)-2*y_n)
 
 # MAIN
 # Berechnung der Approximation mittels Euler-Verfahren  
@@ -54,7 +54,7 @@ plt.plot(x, ApprValues, label = "Approximation mit Euler")
   
 # Exakt
 # Plotte die exakten Werte  
-plt.plot(x, ExactValues, label = "Exakte Werte") 
+#plt.plot(x, ExactValues, label = "Exakte Werte") 
   
 # Formatierung des Plots
 plt.xlabel("x-Achse") 

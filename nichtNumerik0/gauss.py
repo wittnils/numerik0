@@ -46,9 +46,9 @@ def rueckeinsetzen(A,r,x,n):
 
 # MAIN
 # Input der Koeffizienten
-A = [[2.,2.,-3.],[-1.,-2.,-2.],[4.,1.,-2.]]
+A = [[1./3,1./2,1.],[1./4,1./3,1./2],[1./5,1./4,1./3]]
 # Input des b-Vektors
-r = [-7., 3., -1.]
+r = [2./3, 2./5, 2./7]
 x = []
 n = len(r)
 for c in range(n):
